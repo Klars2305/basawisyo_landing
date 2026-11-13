@@ -154,3 +154,20 @@ addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();
     }
   });
 })();
+
+// Keep the return control out of the way until the hero has passed.
+(() => {
+  const backToTop = document.getElementById('back-to-top');
+  const hero = document.querySelector('.hero');
+  if (!backToTop || !hero) return;
+  const update = () => { backToTop.hidden = hero.getBoundingClientRect().bottom > 0; };
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      backToTop.hidden = entry.boundingClientRect.bottom > 0;
+    }, { threshold: 0 }).observe(hero);
+  } else {
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
+  }
+  update();
+})();
