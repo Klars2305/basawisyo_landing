@@ -57,12 +57,20 @@ let brk=false,spin=0,RE=null,ft=0;
 function snap(){brk=true;dr=null;bd.classList.remove('drag');bd.style.pointerEvents='none';hn.classList.add('off');spin=(V.x>=0?1:-1)*(2+Math.abs(V.x)*.3);V.y=Math.max(V.y,3);RE={x:P.x,y:P.y+14};ft=0;bt.textContent='Reattach badge'}
 function fall(){ft++;V.y+=.9;P.x+=V.x;P.y+=V.y;th+=spin;RE.x+=(A.x-RE.x)*.22+Math.sin(ft*1.3)*Math.max(0,10-ft*.4);RE.y+=(A.y-RE.y)*.22;
 bd.style.transform=`translate(${P.x-125}px,${P.y}px) rotate(${th}deg)`;const p=`M${A.x} ${A.y}Q${(A.x+RE.x)/2+Math.sin(ft)*8} ${(A.y+RE.y)/2} ${RE.x} ${RE.y}`;r1.setAttribute('d',p);r2.setAttribute('d',p);r1.setAttribute('stroke','#e8b514');r1.setAttribute('stroke-width',9);r2.setAttribute('stroke-width',9);
-r1.style.opacity=r2.style.opacity=Math.max(0,1-ft/28);if(P.y>1100){lan.classList.remove('show');bt.setAttribute('aria-pressed',false);raf=0;return}raf=requestAnimationFrame(fall)}
+r1.style.opacity=r2.style.opacity=Math.max(0,1-ft/28);if(P.y>1100){show(false);return}raf=requestAnimationFrame(fall)}
 function step1(){r1.setAttribute('stroke','#e8b514');r1.setAttribute('stroke-width',16);r2.setAttribute('stroke-width',16);bd.style.transform=`translate(5px,${REST}px)`;r1.setAttribute('d',`M130 0L130 ${REST+14}`);r2.setAttribute('d',`M130 0L130 ${REST+14}`)}
 const go=()=>{if(!raf)raf=requestAnimationFrame(step)},loc=e=>{const r=lan.getBoundingClientRect(),k=r.width/260;return{x:(e.clientX-r.left)/k,y:(e.clientY-r.top)/k}};
-function show(on){lan.classList.toggle('show',on);bt.textContent=on?'Hide badge':'Show badge';bt.setAttribute('aria-pressed',on);if(on){brk=false;bd.style.pointerEvents='';r1.style.opacity=r2.style.opacity=1;hn.classList.remove('off');P=rm?{x:130,y:REST}:{x:130,y:-320};V={x:0,y:0};th=w=bn=bv=0;go()}}
+const compactBadge=matchMedia('(max-width:1200px)');let lastScrollY=scrollY,downwardScroll=0;
+function show(on){
+  if(!on&&lan.contains(document.activeElement))bt.focus();
+  lan.classList.toggle('show',on);lan.inert=!on;lan.setAttribute('aria-hidden',String(!on));
+  bt.textContent=on?'Hide badge':'Show badge';bt.setAttribute('aria-pressed',String(on));
+  if(!on){if(raf)cancelAnimationFrame(raf);raf=0;dr=null;bd.classList.remove('drag');bd.style.pointerEvents='';return}
+  downwardScroll=0;brk=false;bd.style.pointerEvents='';r1.style.opacity=r2.style.opacity=1;hn.classList.remove('off');P=rm?{x:130,y:REST}:{x:130,y:-320};V={x:0,y:0};th=w=bn=bv=0;go();
+}
 bt.onclick=()=>show(!lan.classList.contains('show'));
-bd.addEventListener('pointerdown',e=>{e.preventDefault();bd.setPointerCapture(e.pointerId);const q=loc(e);g={x:P.x-q.x,y:P.y-q.y};dr={x:P.x,y:P.y};bd.classList.add('drag');hn.classList.add('off');go()});
+addEventListener('scroll',()=>{const current=scrollY,delta=current-lastScrollY;lastScrollY=current;downwardScroll=delta>0?downwardScroll+delta:0;if(compactBadge.matches&&current>24&&downwardScroll>=16&&lan.classList.contains('show'))show(false)},{passive:true});
+bd.addEventListener('pointerdown',e=>{if(compactBadge.matches&&e.pointerType==='touch')return;e.preventDefault();bd.setPointerCapture(e.pointerId);const q=loc(e);g={x:P.x-q.x,y:P.y-q.y};dr={x:P.x,y:P.y};bd.classList.add('drag');hn.classList.add('off');go()});
 bd.addEventListener('pointermove',e=>{if(!dr)return;const q=loc(e);dr={x:q.x+g.x,y:q.y+g.y}});
 const up=()=>{dr=null;bd.classList.remove('drag');go()};bd.addEventListener('pointerup',up);bd.addEventListener('pointercancel',up);
 bd.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();V.x+=e.key==='ArrowRight'?14:e.key==='ArrowLeft'?-14:0;V.y+=e.key==='ArrowDown'?18:0;hn.classList.add('off');go()}});
