@@ -76,7 +76,18 @@ const up=()=>{dr=null;bd.classList.remove('drag');go()};bd.addEventListener('poi
 bd.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();V.x+=e.key==='ArrowRight'?14:e.key==='ArrowLeft'?-14:0;V.y+=e.key==='ArrowDown'?18:0;hn.classList.add('off');go()}});
 step1();if(innerWidth>1200)setTimeout(()=>show(true),900)})();
 const st=document.querySelector('.stage'),im=[...st.querySelectorAll('.ph .screen-trigger')],cp=[...st.querySelectorAll('.cap div')],dt=[...st.querySelectorAll('.dots i')];
-function up(){if(rm)return;const r=st.getBoundingClientRect(),p=Math.max(0,Math.min(1,-r.top/(r.height-innerHeight))),f=p*3,a=Math.round(f),gap=innerWidth<820?.42:.52;
+const mobileShowcase=st.querySelector('.mobile-showcase');
+cp.forEach((caption,i)=>{
+  const step=document.createElement('article');step.className='mobile-step';
+  const copy=caption.cloneNode(true);copy.className='mobile-copy';
+  const preview=document.createElement('div');preview.className='mobile-preview';
+  const trigger=im[i].cloneNode(true);trigger.removeAttribute('style');
+  const image=trigger.querySelector('img');image.width=340;image.height=680;
+  preview.append(trigger);
+  step.append(copy,preview);mobileShowcase.append(step);
+});
+document.documentElement.classList.add('mobile-showcase-ready');
+function up(){if(rm||innerWidth<=1100||innerHeight<=700)return;const r=st.getBoundingClientRect(),p=Math.max(0,Math.min(1,-r.top/(r.height-innerHeight))),f=p*3,a=Math.round(f),gap=.52;
 im.forEach((m,i)=>{const o=i-f,ab=Math.abs(o);m.style.transform=`translateX(${o*gap*100}%) translateZ(${-ab*120}px) rotateY(${-o*26}deg) scale(${Math.max(.55,1-ab*.2)})`;m.style.opacity=ab>1.6?0:1-ab*.28;m.style.zIndex=10-Math.round(ab*3);m.style.filter=ab<.5?'':'saturate(.6) brightness(.95)'});
 cp.forEach((c,i)=>c.classList.toggle('on',i===a));dt.forEach((d,i)=>d.classList.toggle('on',i===a))}
 addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();
