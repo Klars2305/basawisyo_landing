@@ -76,6 +76,9 @@ const up=()=>{dr=null;bd.classList.remove('drag');go()};bd.addEventListener('poi
 bd.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();V.x+=e.key==='ArrowRight'?14:e.key==='ArrowLeft'?-14:0;V.y+=e.key==='ArrowDown'?18:0;hn.classList.add('off');go()}});
 step1();if(innerWidth>1200)setTimeout(()=>show(true),900)})();
 const st=document.querySelector('.stage'),im=[...st.querySelectorAll('.ph .screen-trigger')],cp=[...st.querySelectorAll('.cap div')],dt=[...st.querySelectorAll('.dots i')];
+const prototypePrev=document.getElementById('prototype-prev'),prototypeNext=document.getElementById('prototype-next'),prototypeStatus=document.getElementById('prototype-status');
+const mobilePrototype=matchMedia('(max-width:1100px)');
+let activePrototypeStep=-1,prototypeMode='';
 const mobileShowcase=st.querySelector('.mobile-showcase');
 cp.forEach((caption,i)=>{
   const step=document.createElement('article');step.className='mobile-step';
@@ -87,9 +90,30 @@ cp.forEach((caption,i)=>{
   step.append(copy,preview);mobileShowcase.append(step);
 });
 document.documentElement.classList.add('mobile-showcase-ready');
-function up(){if(rm||innerWidth<=1100||innerHeight<=700)return;const r=st.getBoundingClientRect(),p=Math.max(0,Math.min(1,-r.top/(r.height-innerHeight))),f=p*3,a=Math.round(f),gap=.52;
-im.forEach((m,i)=>{const o=i-f,ab=Math.abs(o);m.style.transform=`translateX(${o*gap*100}%) translateZ(${-ab*120}px) rotateY(${-o*26}deg) scale(${Math.max(.55,1-ab*.2)})`;m.style.opacity=ab>1.6?0:1-ab*.28;m.style.zIndex=10-Math.round(ab*3);m.style.filter=ab<.5?'':'saturate(.6) brightness(.95)'});
-cp.forEach((c,i)=>c.classList.toggle('on',i===a));dt.forEach((d,i)=>d.classList.toggle('on',i===a))}
+function showPrototypeStep(index,mobile){
+  const a=Math.max(0,Math.min(cp.length-1,index)),changed=a!==activePrototypeStep;
+  if(mobile)im.forEach((m,i)=>{const o=i-a,ab=Math.abs(o);m.style.transform=`translateX(${o*52}%) translateZ(${-ab*65}px) rotateY(${-o*18}deg) scale(${Math.max(.55,1-ab*.2)})`;m.style.opacity=ab>1.6?0:1-ab*.28;m.style.zIndex=10-Math.round(ab*3);m.style.filter=ab<.5?'':'saturate(.6) brightness(.95)';m.tabIndex=i===a?0:-1;m.inert=i!==a;m.style.pointerEvents=i===a?'':'none'});
+  cp.forEach((c,i)=>c.classList.toggle('on',i===a));dt.forEach((d,i)=>d.classList.toggle('on',i===a));
+  activePrototypeStep=a;prototypePrev.disabled=a===0;prototypeNext.disabled=mobile&&a===cp.length-1;
+  prototypeNext.textContent=!mobile&&a===cp.length-1?'↓':'→';
+  prototypeNext.setAttribute('aria-label',!mobile&&a===cp.length-1?'Continue past prototype':'Next prototype screen');
+  if(changed)prototypeStatus.textContent=`Screen ${a+1} of ${cp.length}`;
+}
+function up(){
+  if(mobilePrototype.matches){if(prototypeMode!=='mobile'){prototypeMode='mobile';showPrototypeStep(activePrototypeStep<0?0:activePrototypeStep,true)}return}
+  prototypeMode='desktop';if(rm)return;
+  const r=st.getBoundingClientRect(),p=Math.max(0,Math.min(1,-r.top/(r.height-innerHeight))),f=p*3,a=Math.round(f),compact=innerHeight<=700,gap=.52;
+  im.forEach((m,i)=>{const o=i-f,ab=Math.abs(o);m.style.transform=`translateX(${o*gap*100}%) translateZ(${-ab*(compact?65:120)}px) rotateY(${-o*(compact?18:26)}deg) scale(${Math.max(.55,1-ab*.2)})`;m.style.opacity=ab>1.6?0:1-ab*.28;m.style.zIndex=10-Math.round(ab*3);m.style.filter=ab<.5?'':'saturate(.6) brightness(.95)';m.tabIndex=i===a?0:-1;m.inert=false;m.style.pointerEvents=''});
+  showPrototypeStep(a,false);
+}
+function goToPrototypeStep(index){
+  if(mobilePrototype.matches){showPrototypeStep(index,true);return}
+  if(index>=cp.length){st.nextElementSibling.scrollIntoView({behavior:rm?'instant':'smooth',block:'start'});return}
+  const stageTop=scrollY+st.getBoundingClientRect().top;
+  scrollTo({top:stageTop+(st.offsetHeight-innerHeight)*index/(cp.length-1),behavior:rm?'instant':'smooth'});
+}
+prototypePrev.addEventListener('click',()=>goToPrototypeStep(activePrototypeStep-1));
+prototypeNext.addEventListener('click',()=>goToPrototypeStep(activePrototypeStep+1));
 addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();
 
 // Accessible, lazy-loaded interactive prototype dialog.

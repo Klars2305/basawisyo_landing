@@ -382,6 +382,7 @@
                   
                   A short Phil-IRI-based test sets each student's baseline.
                 </p>
+                <span class="prototype-cue">Tap arrows to explore →</span>
               </div>
               <div>
                 <small>02 · Daily practice</small>
@@ -417,12 +418,17 @@
                 </p>
               </div>
             </div>
-            <div class="dots">
-              <i class="on"></i><i></i><i></i><i></i>
+            <div class="prototype-controls" role="group" aria-label="Prototype navigation">
+              <button class="prototype-arrow" id="prototype-prev" type="button" aria-label="Previous prototype screen" disabled>←</button>
+              <div class="dots" aria-hidden="true">
+                <i class="on"></i><i></i><i></i><i></i>
+              </div>
+              <button class="prototype-arrow" id="prototype-next" type="button" aria-label="Next prototype screen">→</button>
             </div>
+            <span class="sr-only" id="prototype-status" role="status" aria-live="polite">Screen 1 of 4</span>
           </div>
           <div class="ph">
-            <button aria-label="Open interactive prototype: Placement test screen" class="screen-trigger" type="button"><img alt="Placement test screen" decoding="async" loading="lazy" src="assets/c65299b50564.svg"/>
+            <button aria-label="Open interactive prototype: Placement test screen" class="screen-trigger" type="button"><img alt="Placement test screen" decoding="async" loading="eager" src="assets/c65299b50564.svg"/>
 </button><button aria-label="Open interactive prototype: Leveled practice screen" class="screen-trigger" type="button"><img alt="Leveled practice screen" decoding="async" loading="lazy" src="assets/86d2775c81b2.svg"/>
 </button><button aria-label="Open interactive prototype: Bayanihan quest screen" class="screen-trigger" type="button"><img alt="Bayanihan quest screen" decoding="async" loading="lazy" src="assets/5a67a505d171.svg"/>
 </button><button aria-label="Open interactive prototype: Teacher dashboard screen" class="screen-trigger" type="button"><img alt="Teacher dashboard screen" decoding="async" loading="lazy" src="assets/cb47434a097e.svg"/>
